@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — FreelancerFinance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p>Welcome back, {{ current_user.name }}!</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid">
+  <div class="stat-card stat-green">
+    <div class="stat-label">Total Earned</div>
+    <div class="stat-value">${{ "%.2f"|format(total_income) }}</div>
+  </div>
+  <div class="stat-card stat-yellow">
+    <div class="stat-label">Pending</div>
+    <div class="stat-value">${{ "%.2f"|format(pending_total) }}</div>
+  </div>
+  <div class="stat-card stat-red">
+    <div class="stat-label">Overdue Invoices</div>
+    <div class="stat-value">{{ overdue_count }}</div>
+  </div>
+</div>
+
+<!-- Income Table -->
+<div class="section">
+  <div class="section-header">
+    <h2>Income Entries</h2>
+    <a href="{{ url_for('main.add_income') }}" class="btn btn-primary">+ Add Income</a>
+  </div>
+
+  {% if income_entries %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Client</th>
+        <th>Project</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in income_entries %}
+      <tr>
+        <td>{{ entry.date_received.strftime('%b %d, %Y') }}</td>
+        <td>{{ entry.client_name }}</td>
+        <td>{{ entry.project_name }}</td>
+        <td class="amount">${{ "%.2f"|format(entry.amount) }}</td>
+        <td><span class="badge badge-{{ entry.status }}">{{ entry.status }}</span></td>
+        <td>
+          <form method="POST" action="{{ url_for('main.delete_income', income_id=entry.id) }}"
+                onsubmit="return confirm('Delete this entry?')">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No income entries yet.</p>
+    <a href="{{ url_for('main.add_income') }}" class="btn btn-primary">Add your first entry</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
